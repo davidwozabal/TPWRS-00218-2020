@@ -169,22 +169,3 @@ for q = 1:8760*4
     
     last_bid = ID_q;    
 end
-
-% fprintf('---------------------------------\n');
-% fprintf('--------TABLE II - Right---------\n');
-% fprintf('---------------------------------\n');
-% fprintf('Positive Capacity: %.0f\n', profit_pos_cap);
-% fprintf('Negative Capacity: %.0f\n', profit_neg_cap);
-% fprintf('Positive Power   : %.0f\n', profit_pos_pow);
-% fprintf('Negative Power   : %.0f\n', profit_neg_pow);
-% fprintf('ID Trading       : %.0f\n', profits_ID);
-% fprintf('Total            : %.0f\n', profit_pos_cap+profit_neg_cap+profit_pos_pow+profit_neg_pow+profits_ID);
-% fprintf('-------------------------------------------\n\n');
-
-% Sanity Checks
-% fprintf('STATISITICS\n');
-% fprintf('-----------\n');
-% fprintf('Max/min storage level: %.2f/%.2f\n', max(storageLevel), min(storageLevel));
-% fprintf('Accepted capacity bids in MW (pos/neg): %.2f\n', accepted_pos_total, accepted_neg_total);
-% fprintf('Call-offs in MWh (pos/neg): %.2f/%.2f\n', called_off_pos, called_off_neg);
-% fprintf('Intraday power bought/sold: %.2f/%.2f\n', -sum(intraday_bids(intraday_bids<0)), sum(intraday_bids(intraday_bids>0)));
