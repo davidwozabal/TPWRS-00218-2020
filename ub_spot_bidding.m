@@ -12,8 +12,8 @@ storage_Power_Output_Max = 2; %(MW)
 storage_Power_Input_Max = 2; %(MW)
 initialStorage = storage_Capacity_Max / 2; % initial state of charge and storage level
 
-% imbalance result scaled by the factor of 3
-balancing_cost = 3/4*Wind_Power*(Wind_observed-Wind_forecast)'*REBAP;
+% imbalance result scaled by the factor of 5
+balancing_cost = 5/4*Wind_Power*(Wind_observed-Wind_forecast)'*REBAP;
 
 % optimal bidding with storage unit on DA + ID
 M = 8760 * 4; % number of quarter hours in 365 days
