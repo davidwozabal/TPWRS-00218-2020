@@ -24,7 +24,6 @@ called_off_pos = 0; called_off_neg = 0;
 for m = 7:length(bids_pos)
     % get capacity price bids for the market from quantiles of accepted
     % bids from the same market on the day before
-    % TODO: That is not optimal. There will be a weekly seasonality!
     bid_cap_pos = quantile_nu(bids_pos(m-6).cap_price, bids_pos(m-6).accepted / sum(bids_pos(m-6).accepted), q_cap_pos);
     bid_cap_neg = quantile_nu(bids_neg(m-6).cap_price, bids_neg(m-6).accepted / sum(bids_neg(m-6).accepted), q_cap_neg);
     
@@ -139,7 +138,7 @@ end
 %
 % q = min((s - x/3) - 1/3 * bid_quant_pos, 0) + max((s - x/3) + 1/3 * bid_quant_neg - 1, 0)
 %
-% where (s-x/12) is the storage level in 5 minutes if there are no further 
+% where (s-x/3) is the storage level in 5 minutes if there are no further 
 % call-offs. The first term takes care of the case of running out of energy
 % due to call-offs of positive energy for 1/3 of an hour (20 minutes) while
 % the second term takes care of the situation of overflow. 
@@ -160,8 +159,20 @@ for q = 1:8760*4
         + max((level_at_decision - last_bid/3) + 1/3 * bid_quant_neg - 1, 0);
     intraday_bids(q) = ID_q;
     
+    % if prices are low in the next 15 minutes try to buy a little more if
+    % possible
+    if q > 96 && Price_ID_1qh(q) < quantile(Price_ID_1qh(q-96:q-1), 0.5) && ID_q <= 0 && (level_at_decision - last_bid/3) < 0.5
+        ID_q = -min(0.25, 0.75 - (level_at_decision - last_bid/3));
+    end
+    
+    % if prices are high in the next 15 minutes try to sell a little more if
+    % possible
+    if q > 96 && Price_ID_1qh(q) > quantile(Price_ID_1qh(q-96:q-1), 0.5) && ID_q >= 0 && (level_at_decision - last_bid/3) > 0.5
+        ID_q = min(0.25, (level_at_decision - last_bid/3) - 0.25);
+    end
+    
     % profits/cost from intraday trading
-    profits_ID = profits_ID + ID_q * Price_IDqh(q);
+    profits_ID = profits_ID + ID_q * Price_ID_1qh(q);
     
     % new level at the end of the period
     level = level_at_decision - last_bid/3 + level_change((q-1)*3+3);
@@ -169,3 +180,22 @@ for q = 1:8760*4
     
     last_bid = ID_q;    
 end
+
+% fprintf('---------------------------------\n');
+% fprintf('--------TABLE II - Right---------\n');
+% fprintf('---------------------------------\n');
+% fprintf('Positive Capacity: %.0f\n', profit_pos_cap);
+% fprintf('Negative Capacity: %.0f\n', profit_neg_cap);
+% fprintf('Positive Power   : %.0f\n', profit_pos_pow);
+% fprintf('Negative Power   : %.0f\n', profit_neg_pow);
+% fprintf('ID Trading       : %.0f\n', profits_ID);
+% fprintf('Total            : %.0f\n', profit_pos_cap+profit_neg_cap+profit_pos_pow+profit_neg_pow+profits_ID);
+% fprintf('-------------------------------------------\n\n');
+
+% Sanity Checks
+% fprintf('STATISITICS\n');
+% fprintf('-----------\n');
+% fprintf('Max/min storage level: %.2f/%.2f\n', max(storageLevel), min(storageLevel));
+% fprintf('Accepted capacity bids in MW (pos/neg): %.2f\n', accepted_pos_total, accepted_neg_total);
+% fprintf('Call-offs in MWh (pos/neg): %.2f/%.2f\n', called_off_pos, called_off_neg);
+% fprintf('Intraday power bought/sold: %.2f/%.2f\n', -sum(intraday_bids(intraday_bids<0)), sum(intraday_bids(intraday_bids>0)));

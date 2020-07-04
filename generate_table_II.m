@@ -8,6 +8,7 @@ clear; clc;
 load 'data/windPowerFeedIn_2019.mat';           % Wind forecast and actual production
 load 'data/REBAP_2019.mat';                     % REBAP prices
 load 'data/DA_2019.mat';                        % DA prices
+load 'data/ID_1_2019.mat';                      % ID_1 prices
 load 'data/ID_2019.mat';                        % ID prices
 load 'data/vol_1s_res_2019.mat';                % second per second call offs in the balancing market
 load 'data/bid_data.mat';                       % data on balancing market auctions (prices & quantities)
